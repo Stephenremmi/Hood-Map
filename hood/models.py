@@ -44,7 +44,7 @@ class Profile(models.Model):
     profile_path = models.ImageField(upload_to = 'profile_pics/',default='profile_pics/default.jpg')
     bio = models.TextField()
     user = models.OneToOneField(User,on_delete=models.CASCADE, primary_key=True)
-    community = models.ForeignKey(Neighbourhood,null=True, related_name='population')
+    community = models.ForeignKey(Neighbourhood,on_delete=models.CASCADE,null=True, related_name='population')
 
     def __str__(self):
         return f'{self.user.username} Profile'
@@ -68,9 +68,9 @@ class Post(models.Model):
     post_image = models.ImageField(upload_to='images/', null=True,blank=True)
     categories = models.CharField(max_length=70)
     time_created =  models.DateTimeField(auto_now=True, null =True)
-    location=models.ForeignKey(Neighbourhood)
-    user = models.ForeignKey(User, null=True)
-    user_profile = models.ForeignKey(Profile)
+    location=models.ForeignKey(Neighbourhood,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    user_profile = models.ForeignKey(Profile,on_delete=models.CASCADE)
     
     def __str__(self):
         return self.description
@@ -81,7 +81,7 @@ class Post(models.Model):
 class Business(models.Model):
     bsn_name = models.CharField(max_length=64, unique= True)
     bsn_user = models.ForeignKey(User,on_delete=models.CASCADE)
-    bsn_community = models.ForeignKey(Neighbourhood, null=True)
+    bsn_community = models.ForeignKey(Neighbourhood,on_delete=models.CASCADE,null=True)
     bsn_email = models.EmailField(max_length=64, unique= True) 
     def get_absolute_url(self):
         return reverse('home')  
@@ -105,8 +105,8 @@ class Business(models.Model):
         return bsn 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, null=True)
-    user = models.ForeignKey(User)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     comment = models.CharField(max_length=100)
     posted_on = models.DateTimeField(auto_now=True)
 

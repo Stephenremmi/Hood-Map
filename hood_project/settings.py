@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'hood_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hood',
         'USER': 'remmi',
         'PASSWORD': 'stephen',

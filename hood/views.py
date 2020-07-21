@@ -1,7 +1,6 @@
 from django.shortcuts import render
-import folium
 from django.contrib.gis.geos import Point
-from djanfo.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 
  
 from django.shortcuts import render,redirect,get_object_or_404
