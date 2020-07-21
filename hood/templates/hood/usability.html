@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %} 
+{% block content %}
+
+<div class="container">
+
+
+		<form id="my-form" action="{% url 'review_usability' post_id=post.id %}" method="POST" >
+				{% csrf_token %}
+
+				{% bootstrap_form form %}
+
+<button type="submit" class="btn send-form">Send</button>
+</form>
+
+</div>
+	<div class="gallery">
+		{% if object.screenshot1 %}
+		<img src="{{object.screenshot1.url}}" />
+		<img src="{{object.screenshot2.ur}}l" />
+		<img src="{{object.screenshot3.url}}" />
+{% endif %}
+	</div> 
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+ {% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="content-section">
+      <h4 class="heading"><strong>Business </strong> Form <span></span></h4>
+      <div class="form">
+
+        <form method="POST" action="{%url 'business-create' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Blog Post</legend>
+            {{ form|crispy }}
+        </fieldset>
+          <!-- <input type="text" required="" placeholder="Please input your site name" value="" name="bsn_name" class="txt">
+                    <input type="email" required="" placeholder="Please input your Email" value="" name="bsn_email" class="txt"> -->
+          <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

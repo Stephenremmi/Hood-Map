@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{%if bsn_posts %}
+{% for post in bsn_posts %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ post.bsn_user.profile.image.url }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="{% url 'profile' %}">{{ post.bsn_name.username }}</a>
+        </div>
+        <h2><a class="article-title" href="{% url 'business-detail' post_id=post.id %}">{{ post.bsn_name }}</a></h2>
+        <p class="article-content">{{ post.bsn_community }}</p>
+    </div>
+</article>
+
+{% endfor %}
+{% else %}
+<p>No business currently</p>
+{% endif %}
+{% endblock %}
