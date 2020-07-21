@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hood',
-    'bootstrap4'
-    'crispy_forms'
-    'django_registration'
+    'bootstrap4',
+    'crispy_forms',
+    'django_registration',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +126,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -133,9 +136,15 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # configuring the location for media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-LOGIN_REDIRECT_URL = 'home'
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'login'
+#LOGIN_REDIRECT_URL = 'home'
+#LOGIN_URL = 'login'
+#LOGOUT_REDIRECT_URL = 'login'
+
+LOGIN_URL = "/accounts/login/" # this is the name of the url
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/" 
+
+REGISTRATION_OPEN= True
+ACCOUNT_ACTIVATION_DAYS = 5
 
 # Configure Django App for Heroku.
-django_heroku.settings(locals())
