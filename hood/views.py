@@ -27,7 +27,7 @@ def register(request):
     else:
         form = UserRegisterForm()
 
-    return render(request, 'users/register.html',{'form': form})
+    return render(request, 'django_registraton/registration_form.html',{'form': form})
 
 
 @login_required(login_url='/login/')
@@ -54,7 +54,7 @@ def profile(request):
         'c_form': CommunityModelForm()
     }
 
-    return render(request, 'users/profile.html', context)
+    return render(request, 'profile.html', context)
 
 
 # Create your views here.
@@ -70,16 +70,16 @@ def search_results(request):
             'message': message, 
             'searched_bsns': searched_bsn
         }
-        return render(request, 'neiba/search.html', context)
+        return render(request, 'hood/search.html', context)
 
     else:
         messages.success(request, f"You haven't searched for any term")
 
-        return render(request, 'neiba/search.html',{"message":message})
+        return render(request, 'hood/search.html',{"message":message})
 
 def singlebsnview(request,post_id):
     post = get_object_or_404(Business,pk=post_id)
-    return render(request, 'neiba/business_detail.html',locals())
+    return render(request, 'hood/business_detail.html',locals())
 
 
 
@@ -109,7 +109,7 @@ def post_listview(request):
     except:
         messages.success(request, f'Kindly join a location or update it via your profile!')
 
-    return render(request,'neiba/post_list.html', locals())
+    return render(request,'hood/post_list.html', locals())
 
 def join(request,new_community):
     # get_usr = get_object_or_404(User,pk=request.user.id)
@@ -140,14 +140,14 @@ def business_listview(request):
         posts = Post.objects.get(location=location)
         bsn_posts = Business.objects.get(bsn_community=location)
 
-    return render(request,'neiba/business_list.html', locals())
+    return render(request,'hood/business_list.html', locals())
 def change_user_role(request,user_id):
     fuser = get_object_or_404(Profile, pk=user_id)
     if fuser.is_police is False and request.user.username==request.user.profile.community.created_by:
         fuser.is_police = True
     else:
         messages.success(request, f'Try again!')
-    return (request,'neiba/post_list.html')
+    return (request,'hood/post_list.html')
 # def business_listview(request):
 #     location = get_object_or_404(Neighbourhood, pk=request.user.profile.community.id)
 #     try:
@@ -172,7 +172,7 @@ class PostCreateView(CreateView):
 
 class BusinessCreateView(CreateView):
     form_class = BusinessModelForm
-    template_name = 'neiba/create_business.html'
+    template_name = 'hood/create_business.html'
  
     def form_valid(self, form):
         form.instance.bsn_user = self.request.user
@@ -182,7 +182,7 @@ class BusinessCreateView(CreateView):
 
 class CommunityCreateView(CreateView):
     form_class = CommunityModelForm
-    template_name = 'users/community.html'
+    template_name = 'community.html'
  
     try:
         def form_valid(self, form):

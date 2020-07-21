@@ -17,3 +17,5 @@ urlpatterns=[
     url(r'^joincomminity/(?P<new_community>\d+)/$', views.join, name='join'),
 
 ]
+if settings.DEBUG:
+    urlpatterns+=static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
