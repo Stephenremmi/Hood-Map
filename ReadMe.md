@@ -9,7 +9,7 @@ This web-app allows a user to create a Profile,Category,Country,Technology,Color
 * Live site can be accessed from the following 
 * Pre-configured Admin details are:
 Password: Alexnjuguna
-Username: remmi@remmi.com
+Username: remmi
 
 ### Known Bugs
 * Elements re-arrange themselves unequally on different screen sizes.
