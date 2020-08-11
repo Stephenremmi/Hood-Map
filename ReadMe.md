@@ -1,5 +1,5 @@
-# Hood
-An app that is set to narrow the ralationship gap between neighbours
+# Hood Map
+An app that is set to narrow the relationship gap between neighbours
 
 ## Author
 [Stephen remmi](https://github.com/Stephenremmi)
@@ -19,7 +19,7 @@ An app that is set to narrow the ralationship gap between neighbours
 ## Installation and Set-up
 To view the app, open the live site link provided below on the README.
 Here is a run through of how to set up the application:
-* **Step 1** : Clone this repository using **`https://github.com/Stephenremmi/Remmisma-Gallery.git`**, or downloading a ZIP file of the code.
+* **Step 1** : Clone this repository using **`https://github.com/Stephenremmi/Hood-Map.git`**, or downloading a ZIP file of the code.
 * **Step 2** : The repository, if downloaded as a .zip file will need to be extracted to your preferred location and opened
 * **Step 3** : Go to the project root directory and install the virtualenv library using pip an afterwards create a virtual environment. Run the following commands respectively:
     * **`pip install virtualenv`**
@@ -57,5 +57,5 @@ Future releases should have the following features:
 You can provide feedback or raise any issues/ bugs via email:
 * stephenremmi@gmail.com
 
-## [License](https://github.com/Stephenremmi/Articnews/blob/master/LICENSE)
+## [License](hhttps://github.com/Stephenremmi/Hood-Map/blob/master/LICENSE)
 MIT license Copyright(c) 2020 **Stephen Remmi**
