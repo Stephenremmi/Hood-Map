@@ -1,5 +1,5 @@
-# Hood
-An app that is set to narrow the ralationship gap between neighbours
+# Hood Map
+An app that is set to narrow the relationship gap between neighbours
 
 ## Author
 [Stephen remmi](https://github.com/Stephenremmi)
@@ -57,5 +57,5 @@ Future releases should have the following features:
 You can provide feedback or raise any issues/ bugs via email:
 * stephenremmi@gmail.com
 
-## [License](https://github.com/Stephenremmi/Articnews/blob/master/LICENSE)
+## [License](hhttps://github.com/Stephenremmi/Hood-Map/blob/master/LICENSE)
 MIT license Copyright(c) 2020 **Stephen Remmi**
