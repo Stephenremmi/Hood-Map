@@ -32,7 +32,7 @@ Here is a run through of how to set up the application:
     .
 
 ## Known Bugs
-* Did not implement maps due to time constraints
+* Did not implement maps and image to certain cards due to time constraints
 
 ## Versioning browse photos based on the location they were taken
 Hood-map version 1.0
