@@ -11,25 +11,26 @@
     </div>
 
 
-
     <div class="col-md-4 form-section">
+      {{form.media}}
 
-      {% if form.errors %}
-        <p>Password or Username is incorrect</p>
+    {% if form.errors %}
+        <p>Please enter correct value</p>
       {% endif %}
 
-      <div class="panel panel-default" style="margin-top:280px;">
+      <div class="panel panel-default" style="margin-top:150px;">
 
         <div class="panel-body">
 
           <div class="text-center">
-          <form action="/accounts/login/" method="post">
+            <h3>Create your profile</h3>
+          <form action="{% url 'update-profile' %}" method="post" enctype="multipart/form-data">
 
             {% csrf_token%}
             {% bootstrap_form form %}
 
             <div class="form-group">
-              <input type="submit" class="btn btn-primary login-button" value="Log in">
+              <input type="submit" class="btn btn-primary login-button" value="Post">
 
             </div>
             <input type="hidden" name="next" value="/">
@@ -38,12 +39,6 @@
         </div>
         </div>
 
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-body text-center">
-          <p> Don't have  an account? <span><a class="" href="/accounts/register">Sign Up</a></span></p>
-        </div>
       </div>
 
     </div>
@@ -64,8 +59,9 @@ p, label,a{
 .panel-default{
   border-color: inherit;
 }
-input{
+input,h3{
   text-align: center;
+  color: white;
 }
 
 </style>

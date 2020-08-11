@@ -1,211 +1,227 @@
-from django.shortcuts import render
-from django.contrib.gis.geos import Point
+from django.shortcuts import render,redirect
+from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from .models import neighbourhood,healthservices,Business,Health,Authorities,BlogPost,Profile,notifications,Comment
+from .email import send_priority_email
+from .forms import notificationsForm,ProfileForm,BlogPostForm,BusinessForm,CommentForm
+from decouple import config,Csv
+import datetime as dt
+from django.http import JsonResponse
+import json
+from django.db.models import Q
+from django.contrib.auth.models import User
 
- 
-from django.shortcuts import render,redirect,get_object_or_404
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-)
-from .models import Neighbourhood,Post,Business,Profile
-from .forms import CommunityModelForm, PostModelForm,CommentForm, UserRegisterForm, UserUpdateForm, ProfileUpdateForm,BusinessModelForm
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-
-
-def register(request):
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!,You can now login')
-            return redirect('login')
-    else:
-        form = UserRegisterForm()
-
-    return render(request, 'django_registraton/registration_form.html',{'form': form})
-
-
-@login_required(login_url='/login/')
-def profile(request):
-
-    if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST,
-                                   request.FILES,
-                                   instance=request.user.profile)
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, f'Your account has been updated!')
-            return redirect('profile')
-
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm()
-
-    context = {
-        'u_form': u_form,
-        'p_form': p_form,
-        'c_form': CommunityModelForm()
-    }
-
-    return render(request, 'profile.html', context)
+from rest_framework.response import Response
+from rest_framework.views import APIView
+# from .serializer import
 
 
 # Create your views here.
-@login_required(login_url='/login/')
-def search_results(request):
-    if 'searchItem' in request.GET and request.GET["searchItem"]:
-        search_term = request.GET.get("searchItem")
-        searched_bsn = Business.search_by_bsn(search_term)
-        # user = User.objects.get(username=searched_user)
-        # user_images = Profile.objects.get(user=searched_user)
-        message = f"{search_term}"
-        context = {
-            'message': message, 
-            'searched_bsns': searched_bsn
-        }
-        return render(request, 'hood/search.html', context)
+def index(request):
+    try:
+        if not request.user.is_authenticated:
+            return redirect('/accounts/login/')
+        current_user=request.user
+        profile =Profile.objects.get(username=current_user)
+    except ObjectDoesNotExist:
+        return redirect('create-profile')
 
-    else:
-        messages.success(request, f"You haven't searched for any term")
+    return render(request,'index.html')
 
-        return render(request, 'hood/search.html',{"message":message})
+@login_required(login_url='/accounts/login/')
+def notification(request):
+    current_user=request.user
+    profile=Profile.objects.get(username=current_user)
+    all_notifications = notifications.objects.filter(neighbourhood=profile.neighbourhood)
 
-def singlebsnview(request,post_id):
-    post = get_object_or_404(Business,pk=post_id)
-    return render(request, 'hood/business_detail.html',locals())
+    return render(request,'notifications.html',{"notifications":all_notifications})
 
+@login_required(login_url='/accounts/login/')
+def blog(request):
+    current_user=request.user
+    profile=Profile.objects.get(username=current_user)
+    blogposts = BlogPost.objects.filter(neighbourhood=profile.neighbourhood)
 
+    return render(request,'blog.html',{"blogposts":blogposts})
 
-# class PostListView(ListView):
-#     context_object_name = 'post_list'
-#     template_name= 'neiba/post_list.html' # <app>/<model>_<view_type>.html
-    
-#     def get_context_data(self, **kwargs):
-#         # Call the base implementation first to get a context
-#         context = super().get_context_data(**kwargs)
-#         # Add in a QuerySet of all the books
-#         queryset = Post.objects.filter(location__name=**kwargs)
-#         return context
-@login_required(login_url='/login/')
-def post_listview(request):
-    all_communities = Neighbourhood.objects.all()
+@login_required(login_url='/accounts/login/')
+def health(request):
+    current_user=request.user
+    profile=Profile.objects.get(username=current_user)
+    healthservices = Health.objects.filter(neighbourhood=profile.neighbourhood)
+
+    return render(request,'health.html',{"healthservices":healthservices})
+
+@login_required(login_url='/accounts/login/')
+def authorities(request):
+    current_user=request.user
+    profile=Profile.objects.get(username=current_user)
+    authorities = Authorities.objects.filter(neighbourhood=profile.neighbourhood)
+
+    return render(request,'authorities.html',{"authorities":authorities})
+
+@login_required(login_url='/accounts/login/')
+def businesses(request):
+    current_user=request.user
+    profile=Profile.objects.get(username=current_user)
+    businesses = Business.objects.filter(neighbourhood=profile.neighbourhood)
+
+    return render(request,'businesses.html',{"businesses":businesses})
+
+@login_required(login_url='/accounts/login/')
+def view_blog(request,id):
+    current_user = request.user
 
     try:
-        location = get_object_or_404(Neighbourhood, pk=request.user.profile.community.id)
-        all_profiles = Profile.objects.filter(community=location)
-        form = CommentForm()
-        posts = Post.objects.filter(location=location)
-        bsn_posts = Business.objects.filter(bsn_community=location)
-        print(all_communities)
-        print('fffffffffffffffffffffffff')
-
+        comments = Comment.objects.filter(post_id=id)
     except:
-        messages.success(request, f'Kindly join a location or update it via your profile!')
+        comments =[]
 
-    return render(request,'hood/post_list.html', locals())
-
-def join(request,new_community):
-    # get_usr = get_object_or_404(User,pk=request.user.id)
-    try:
-        new_communit = get_object_or_404(Neighbourhood, pk=new_community)
-
-        request.user.profile.community = new_communit
-        request.user.profile.save()
-        print('pppppppppppp')
-        return redirect('home')
-            
-    except:
-        return redirect('home')
-
-@login_required(login_url='/login/')
-def business_listview(request):
-    location = get_object_or_404(Neighbourhood, pk=request.user.profile.community.id)
-    all_profiles = Profile.objects.filter(community=location)
-
-    try:
-        posts = Post.objects.filter(location=location)
-        bsn_posts = Business.objects.filter(bsn_community=location)
-        print('fffffffffffffffffffffffff')
-        print(bsn_posts)
-        print('fffffffffffffffffffffffff')
-
-    except:
-        posts = Post.objects.get(location=location)
-        bsn_posts = Business.objects.get(bsn_community=location)
-
-    return render(request,'hood/business_list.html', locals())
-def change_user_role(request,user_id):
-    fuser = get_object_or_404(Profile, pk=user_id)
-    if fuser.is_police is False and request.user.username==request.user.profile.community.created_by:
-        fuser.is_police = True
-    else:
-        messages.success(request, f'Try again!')
-    return (request,'hood/post_list.html')
-# def business_listview(request):
-#     location = get_object_or_404(Neighbourhood, pk=request.user.profile.community.id)
-#     try:
-#         posts = Business.objects.filter(location=location)
-#     except:
-#         posts = Business.objects.get(location=location)
-#     return render(request,'neiba/post_list.html', locals())
-
-
-class PostCreateView(CreateView):
-    form_class = PostModelForm
-    template_name = 'neiba/create_post.html'
- 
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.user_profile= self.request.user.profile
-        form.instance.location = self.request.user.profile.community
-        return super().form_valid(form)
-
-
-
-
-class BusinessCreateView(CreateView):
-    form_class = BusinessModelForm
-    template_name = 'hood/create_business.html'
- 
-    def form_valid(self, form):
-        form.instance.bsn_user = self.request.user
-        form.instance.bsn_community = self.request.user.profile.community
-        return super().form_valid(form)
-
-
-class CommunityCreateView(CreateView):
-    form_class = CommunityModelForm
-    template_name = 'community.html'
- 
-    try:
-        def form_valid(self, form):
-            form.instance.created_by = self.request.user
-            # form.instance.user_profile= self.request.user.profile
-            return super().form_valid(form)
-    except:
-        messages.success(request, f'Community with that name already exists.!')
-
-def add_comment(request,post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
+    blog = BlogPost.objects.get(id=id)
+    if request.method =='POST':
+        form = CommentForm(request.POST,request.FILES)
         if form.is_valid():
             comment = form.save(commit=False)
-            comment.user = request.user
-            comment.post = post
+            comment.username = current_user
+            comment.post = blog
             comment.save()
-    return redirect('home')
+    else:
+        form = CommentForm()
 
-def left(request):
-    location = get_object_or_404(Neighbourhood, pk=request.user.profile.community.id)
-    if request.user.profile.community == location:
-        request.user.profile.community= None
-        request.user.profile.save()
-    return redirect('home') 
+    return render(request,'view_blog.html',{"blog":blog,"form":form,"comments":comments})
+
+@login_required(login_url='/accounts/login/')
+def my_profile(request):
+    current_user=request.user
+    profile =Profile.objects.get(username=current_user)
+
+    return render(request,'user_profile.html',{"profile":profile})
+
+
+@login_required(login_url='/accounts/login/')
+def user_profile(request,username):
+    user = User.objects.get(username=username)
+    profile =Profile.objects.get(username=user)
+
+    return render(request,'user_profile.html',{"profile":profile})
+
+@login_required(login_url='/accounts/login/')
+def new_blogpost(request):
+    current_user=request.user
+    profile =Profile.objects.get(username=current_user)
+
+    if request.method=="POST":
+        form =BlogPostForm(request.POST,request.FILES)
+        if form.is_valid():
+            blogpost = form.save(commit = False)
+            blogpost.username = current_user
+            blogpost.neighbourhood = profile.neighbourhood
+            blogpost.avatar = profile.avatar
+            blogpost.save()
+
+        return HttpResponseRedirect('/blog')
+
+    else:
+        form = BlogPostForm()
+
+    return render(request,'blogpost_form.html',{"form":form})
+
+@login_required(login_url='/accounts/login/')
+def new_business(request):
+    current_user=request.user
+    profile =Profile.objects.get(username=current_user)
+
+    if request.method=="POST":
+        form =BusinessForm(request.POST,request.FILES)
+        if form.is_valid():
+            business = form.save(commit = False)
+            business.owner = current_user
+            business.neighbourhood = profile.neighbourhood
+            business.save()
+
+        return HttpResponseRedirect('/businesses')
+
+    else:
+        form = BusinessForm()
+
+    return render(request,'business_form.html',{"form":form})
+
+
+@login_required(login_url='/accounts/login/')
+def create_profile(request):
+    current_user=request.user
+    if request.method=="POST":
+        form =ProfileForm(request.POST,request.FILES)
+        if form.is_valid():
+            profile = form.save(commit = False)
+            profile.username = current_user
+            profile.save()
+        return HttpResponseRedirect('/')
+
+    else:
+
+        form = ProfileForm()
+    return render(request,'profile_form.html',{"form":form})
+
+@login_required(login_url='/accounts/login/')
+def new_notification(request):
+    current_user=request.user
+    profile =Profile.objects.get(username=current_user)
+
+    if request.method=="POST":
+        form =notificationsForm(request.POST,request.FILES)
+        if form.is_valid():
+            notification = form.save(commit = False)
+            notification.author = current_user
+            notification.neighbourhood = profile.neighbourhood
+            notification.save()
+
+            if notification.priority == 'High Priority':
+                send_priority_email(profile.name,profile.email,notification.title,notification.notification,notification.author,notification.neighbourhood)
+
+        return HttpResponseRedirect('/notifications')
+
+
+    else:
+        form = notificationsForm()
+
+    return render(request,'notifications_form.html',{"form":form})
+
+@login_required(login_url='/accounts/login/')
+def update_profile(request):
+    current_user=request.user
+    if request.method=="POST":
+        instance = Profile.objects.get(username=current_user)
+        form =ProfileForm(request.POST,request.FILES,instance=instance)
+        if form.is_valid():
+            profile = form.save(commit = False)
+            profile.username = current_user
+            profile.save()
+
+        return redirect('Index')
+
+    elif Profile.objects.get(username=current_user):
+        profile = Profile.objects.get(username=current_user)
+        form = ProfileForm(instance=profile)
+    else:
+        form = ProfileForm()
+
+    return render(request,'update_profile.html',{"form":form})
+
+
+
+@login_required(login_url='/accounts/login/')
+def search_results(request):
+    if 'blog' in request.GET and request.GET["blog"]:
+        search_term = request.GET.get("blog")
+        searched_blogposts = BlogPost.search_blogpost(search_term)
+        message=f"{search_term}"
+
+        print(searched_blogposts)
+
+        return render(request,'search.html',{"message":message,"blogs":searched_blogposts})
+
+    else:
+        message="You haven't searched for any term"
+        return render(request,'search.html',{"message":message})
